@@ -1,4 +1,4 @@
-class Player {
+class Warrior {
   constructor(hp, baseDamage, agi, name) {
     this.hp = hp;
     this.baseDamage = baseDamage;
@@ -6,11 +6,28 @@ class Player {
     this.name = name;
   }
   slash(enemy) {
-    return enemy.hp - 25;
+    return enemy.hp - (this.baseDamage + 5);
+  }
+  berserk(enemy) {
+    this.hp -= 10;
+    this.agi += 1;
+    return enemy.hp - (this.baseDamage + 15);
+  }
+}
+
+class Archer {
+  constructor(hp, baseDamage, agi, name) {
+    this.hp = hp;
+    this.baseDamage = baseDamage;
+    this.agi = agi;
+    this.name = name;
+  }
+  Golden_Arrow(enemy) {
+    return enemy.hp - (this.baseDamage + 5);
   }
   potion() {
-    alert(`Te tomaste una pocion. Te sientes mucho mejor`);
-    return this.hp + 15;
+    this.hp += 35;
+    this.agi -= 1;;
   }
 }
 
@@ -26,7 +43,38 @@ class Enemy {
   }
 }
 
-function event(player, enemy) {
+function charCreator() {
+  let option = Number(prompt('Inserte su opcion aqui: 1. Crear Guerrero - 2. Crear Arquero.'));
+  if (option === 1) {
+    let player = new Warrior(300, 15, 15, prompt('Inserte el nombre de su guerrero:'));
+    player.name.toLowerCase();
+    player_heroes.push(player);
+    console.log(player_heroes);
+    menu()
+  } else if (option === 2) {
+    let player = new Archer(300, 15, 15, prompt('Inserte el nombre de su arquero:'));
+    player.name.toLowerCase();
+    player_heroes.push(player);
+    console.log(player_heroes);
+    menu()
+  }
+}
+
+function charSelector() {
+  let heroName = prompt('Inserte el nombre del personaje que desea utilizar.');
+  heroName.toLowerCase();
+  if (player_heroes.length >= 1) { 
+    let found = player_heroes.find(hero => hero.name == heroName);
+    console.log(found);
+    return found;
+  } else if (player_heroes.length == 0) {
+    alert('No hay personajes para jugar, por favor cree uno e intente de nuevo.');
+    menu();
+  }
+  
+}
+
+function combat(player, enemy) {
   let counter = 0;
   while (player.hp >= 0 && enemy.hp >= 0) {
     counter++;
@@ -47,6 +95,7 @@ function turnResolver(player, enemy) {
   let enemy_ini = enemy.agi + Math.floor(Math.random() * 10 + 1);
   if (player_ini > enemy_ini) {
     pAttackSelector(player, enemy);
+    alert(`Enemy health ${enemy.hp}`);
   } else if (enemy_ini > player_ini) {
     player.hp = enemy.bomb(player);
     alert(`Player health ${player.hp}`);
@@ -56,26 +105,39 @@ function turnResolver(player, enemy) {
 }
 
 function pAttackSelector(player, enemy) {
-  let option = Number(
-    prompt(
-      "Seleccione con un numero la habilidad que desea utilizar: (1) Slash (25 de dano) o (2) Pocion (+15 de salud)"
-    )
-  );
-  if (option === 1) {
-    enemy.hp = player.slash(enemy);
-    alert(`Enemy health ${enemy.hp}`);
-    return enemy.hp;
-  } else if (option === 2) {
-    player.potion();
-    alert(`Tu vida ahora es ${player.hp}`);
-    return enemy.hp;
-  } else {
-    alert("Comando desconocido recibido. Aplicando un ataque normal.");
-    return enemy.hp - player.baseDamage;
+  if (player instanceof Archer) {
+    let option = Number(prompt('Inserte el ataque que desea aplicar: 1. Flecha dorada - 2. Pocion'))
+    if (option === 1) {
+      enemy.hp = player.Golden_Arrow(enemy);
+    } else if (option === 2) {  
+      player.potion();      
+    }
+  } else if (player instanceof Warrior) {
+    let option = Number(prompt('Inserte el ataque que desea aplicar: 1. Slash - 2. Berserk'))
+    if (option === 1) {
+      enemy.hp = player.slash(enemy);
+    } else if (option === 2) {  
+      enemy.hp = player.berserk(enemy);     
+    }
   }
 }
 
-let player = new Player(300, 15, 15, "Trafuri");
+function menu() {
+  option = Number(prompt('Inserte su opcion: 1. Crear personaje - 2. Combate - 3. Salir.'));
+  switch (option) {
+    case 1:
+      charCreator();
+      menu();
+    case 2:
+      combat(charSelector(), enemy);
+      menu();
+    case 3:
+      break;
+  }
+}
+
 let enemy = new Enemy(350, 15, 15, "Trafurion");
 
-event(player, enemy);
+let player_heroes = [];
+
+menu();
