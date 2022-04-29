@@ -1,3 +1,5 @@
+"use strict"
+
 class Warrior {
   constructor(hp, baseDamage, agi, name) {
     this.hp = hp;
@@ -39,42 +41,42 @@ class Enemy {
     this.name = name;
   }
   bomb(player) {
-    return player.hp - 15;
+    return player.hp - this.baseDamage;
   }
 }
 
-function charCreator() {
+function charCreator(arr) {
   let option = Number(prompt('Inserte su opcion aqui: 1. Crear Guerrero - 2. Crear Arquero.'));
   if (option === 1) {
     let player = new Warrior(300, 15, 15, prompt('Inserte el nombre de su guerrero:'));
     player.name.toLowerCase();
-    player_heroes.push(player);
-    console.log(player_heroes);
+    arr.push(player);
+    console.log(arr);
     menu()
   } else if (option === 2) {
     let player = new Archer(300, 15, 15, prompt('Inserte el nombre de su arquero:'));
     player.name.toLowerCase();
-    player_heroes.push(player);
-    console.log(player_heroes);
+    arr.push(player);
+    console.log(arr);
     menu()
   }
 }
 
-function charSelector() {
+function charSelector(arr) {
   let heroName = prompt('Inserte el nombre del personaje que desea utilizar.');
   heroName.toLowerCase();
-  if (player_heroes.length >= 1) { 
-    let found = player_heroes.find(hero => hero.name == heroName);
+  if (arr.length >= 1) { 
+    let found = arr.find(hero => hero.name == heroName);
     console.log(found);
     return found;
-  } else if (player_heroes.length == 0) {
+  } else if (arr.length == 0) {
     alert('No hay personajes para jugar, por favor cree uno e intente de nuevo.');
     menu();
   }
   
 }
 
-function combat(player, enemy) {
+function combat(player, enemy, arr) {
   let counter = 0;
   while (player.hp >= 0 && enemy.hp >= 0) {
     counter++;
@@ -82,7 +84,15 @@ function combat(player, enemy) {
     turnResolver(player, enemy);
     if (player.hp <= 0) {
       alert("YOU DIED");
-      break;
+      player_heroes = arr.filter(alive => alive !== player);  // Eliminar personaje con vida = 0.
+      console.log(player_heroes);
+      let option = Number(prompt('Continar? 1 Si - 2 No'));
+      if (option == 1 && arr.length > 0) {
+        combat(charSelector(player_heroes), enemy, player_heroes);
+      } else {
+        alert("Seleccionaste no continuar, o no tienes suficientes persoanjes vivos para continuar.")
+        break;
+      }
     } else if (enemy.hp <= 0) {
       alert("ENEMY VANQUISHED!");
       break;
@@ -122,22 +132,22 @@ function pAttackSelector(player, enemy) {
   }
 }
 
+
 function menu() {
-  option = Number(prompt('Inserte su opcion: 1. Crear personaje - 2. Combate - 3. Salir.'));
+  let option = Number(prompt('Inserte su opcion: 1. Crear personaje - 2. Combate - 3. Salir.'));
   switch (option) {
     case 1:
-      charCreator();
+      charCreator(player_heroes);
       menu();
     case 2:
-      combat(charSelector(), enemy);
-      menu();
+      combat(charSelector(player_heroes), enemy, player_heroes);
     case 3:
       break;
   }
 }
 
-let enemy = new Enemy(350, 15, 15, "Trafurion");
+let enemy = new Enemy(350, 50, 15, "Trafurion");
 
-let player_heroes = [];
+let player_heroes = new Array();
 
-menu();
+menu(player_heroes, enemy);
