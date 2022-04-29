@@ -84,20 +84,26 @@ function combat(player, enemy, arr) {
     turnResolver(player, enemy);
     if (player.hp <= 0) {
       alert("YOU DIED");
-      player_heroes = arr.filter(alive => alive !== player);  // Eliminar personaje con vida = 0.
+      player_heroes = arr.filter(alive => alive !== player);  // Eliminar personaje con vida igual o menor a 0.
       console.log(player_heroes);
       let option = Number(prompt('Continar? 1 Si - 2 No'));
-      if (option == 1 && arr.length > 0) {
+      if (option == 1) {
+        if (player_heroes.length == 0) {
+          alert('No tienes suficientes personajes vivos para jugar.');
+          return;
+        };
         combat(charSelector(player_heroes), enemy, player_heroes);
-      } else {
+      } else if (option == 2) {
         alert("Seleccionaste no continuar, o no tienes suficientes persoanjes vivos para continuar.")
-        break;
-      }
+        return;
+      } else {
+        return;
+      };
     } else if (enemy.hp <= 0) {
       alert("ENEMY VANQUISHED!");
-      break;
+      return;
     }
-  }
+  } return;
 }
 
 function turnResolver(player, enemy) {
@@ -142,8 +148,8 @@ function menu() {
     case 2:
       combat(charSelector(player_heroes), enemy, player_heroes);
     case 3:
-      break;
-  }
+      return;
+  } return;
 }
 
 let enemy = new Enemy(350, 50, 15, "Trafurion");
